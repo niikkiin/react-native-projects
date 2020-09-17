@@ -1,10 +1,13 @@
 import React, { useContext } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
-import BlogContext from "../context/BlogContext";
+import { Context as BlogContext } from "../context/BlogContext";
+
+// icon
+import { Feather } from "@expo/vector-icons";
 
 const IndexScreen = () => {
-  const { data, addBlogPost } = useContext(BlogContext);
+  const { state, addBlogPost } = useContext(BlogContext);
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Blog Posts</Text>
@@ -13,9 +16,12 @@ const IndexScreen = () => {
       <FlatList
         style={styles.listContainer}
         keyExtractor={(blogPost) => blogPost.title}
-        data={data}
+        data={state}
         renderItem={({ item }) => (
-          <Text style={styles.listItem}>{item.title}</Text>
+          <View style={styles.listItemContainer}>
+            <Text style={styles.listItem}>{item.title}</Text>
+            <Feather name="trash" style={styles.icon} />
+          </View>
         )}
       />
     </View>
@@ -37,10 +43,18 @@ const styles = StyleSheet.create({
   listContainer: {
     marginVertical: 15,
   },
-  listItem: {
+  listItemContainer: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderColor: "gray",
     borderWidth: 1,
     padding: 10,
     marginVertical: 5,
+  },
+  listItem: {
+  },
+  icon: {
+    fontSize: 25,
   },
 });
