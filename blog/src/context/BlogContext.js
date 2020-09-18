@@ -1,18 +1,23 @@
 import createDataContext from "./createDataContext";
 
+// api
+import jsonServer from "../api/jsonServer";
+
 // REDUCER
 const blogReducer = (state, action) => {
   const { type, payload } = action;
   switch (type) {
-    case "ADD_POST":
-      return [
-        ...state,
-        {
-          id: Math.floor(Math.random() * 99999),
-          title: payload.title,
-          content: payload.content,
-        },
-      ];
+    case "GET_POSTS":
+      return payload;
+    // case "ADD_POST":
+    //   return [
+    //     ...state,
+    //     {
+    //       id: Math.floor(Math.random() * 99999),
+    //       title: payload.title,
+    //       content: payload.content,
+    //     },
+    //   ];
     case "UPDATE_POST":
       return state.map((blogPost) => {
         return blogPost.id === payload.id ? payload : blogPost;
@@ -30,20 +35,34 @@ const blogReducer = (state, action) => {
 };
 
 // ACTIONS
-const addBlogPost = (dispatch) => {
-  return (title, content, callback) => {
+const getBlogPosts = (dispatch) => {
+  return async () => {
+    const res = await jsonServer.get("/blogposts");
+
     dispatch({
-      type: "ADD_POST",
-      payload: { title, content },
+      type: "GET_POSTS",
+      payload: res.data,
     });
+  };
+};
+
+const addBlogPost = (dispatch) => {
+  return async (title, content, callback) => {
+    await jsonServer.post("/blogposts", { title, content });
     if (callback) {
       callback();
     }
   };
+
+  //   dispatch({
+  //     type: "ADD_POST",
+  //     payload: { title, content },
+  //   });
 };
 
 const updateBlogPost = (dispatch) => {
-  return (id, title, content, callback) => {
+  return async (id, title, content, callback) => {
+    await jsonServer.put(`/blogposts/${id}`, { title, content });
     dispatch({
       type: "UPDATE_POST",
       payload: { id, title, content },
@@ -55,7 +74,8 @@ const updateBlogPost = (dispatch) => {
 };
 
 const deleteBlogPost = (dispatch) => {
-  return (id) => {
+  return async (id) => {
+    await jsonServer.delete(`/blogposts/${id}`);
     dispatch({
       type: "DELETE_POST",
       payload: id,
@@ -65,7 +85,7 @@ const deleteBlogPost = (dispatch) => {
 
 export const { Context, Provider } = createDataContext(
   blogReducer,
-  { addBlogPost, deleteBlogPost, updateBlogPost },
+  { addBlogPost, deleteBlogPost, updateBlogPost, getBlogPosts },
   // INITIAL STATE
-  [{ id: 1, title: "test post", content: "hello test content" }]
+  []
 );
